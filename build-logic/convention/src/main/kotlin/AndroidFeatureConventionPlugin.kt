@@ -18,7 +18,7 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
 
       dependencies {
         add("implementation", project(":core:data"))
-//        add("compileOnly", project(":core:data"))
+        add("compileOnly", project(":core:designsystem"))
       }
 
       extensions.configure<LibraryExtension> {
