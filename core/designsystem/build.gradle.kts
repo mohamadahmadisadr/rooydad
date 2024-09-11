@@ -14,6 +14,8 @@ dependencies{
 //    api(libs.landscapist.palette)
 
     api(platform(libs.androidx.compose.bom))
+    api(libs.androidx.ui.tooling.preview)
+    api(libs.androidx.ui.tooling)
     api(libs.androidx.material3)
 }
 
