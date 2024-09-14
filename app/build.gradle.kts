@@ -4,7 +4,7 @@ import com.rooydad.app.Configuration
 plugins {
     id("app.rooydad.app.android.application")
     id("app.rooydad.app.android.application.compose")
-//    id("app.rooydad.app.android.hilt")
+    id("app.rooydad.app.android.hilt")
     id("app.rooydad.app.spotless")
 //    alias(libs.plugins.kotlin.parcelize)
 //    alias(libs.plugins.android.application)
@@ -78,9 +78,9 @@ android {
         }
     }
 
-//    hilt {
-//        enableAggregatingTask = true
-//    }
+    hilt {
+        enableAggregatingTask = true
+    }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
@@ -118,8 +118,8 @@ dependencies {
 
 
     // di
-//    implementation(libs.hilt.android)
-//    ksp(libs.hilt.compiler)
-//    androidTestImplementation(libs.hilt.testing)
-//    kspAndroidTest(libs.hilt.compiler)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    androidTestImplementation(libs.hilt.testing)
+    kspAndroidTest(libs.hilt.compiler)
 }
