@@ -10,79 +10,54 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 
 
-class MyGoogleSignIn(
-    private val onAuthCallback: OnAuthCallback,
-    private var clientId: String,
-    private val initializerFirebase: FirebaseApp? = null
-) {
+class MyGoogleSignIn(initializer: FirebaseApp?) : SignInTemplate {
 
 
-    class Builder {
-        private var onAuthCallback: OnAuthCallback? = null
-        private var clientId: String? = null
-        private var initializerFirebase: FirebaseApp? = null
-
-        fun setOnAuthCallback(onAuthCallback: OnAuthCallback) = apply {
-            this.onAuthCallback = onAuthCallback
-        }
-
-        fun setClientId(clientId: String) = apply {
-            this.clientId = clientId
-        }
-
-        fun setFirebaseApp(firebaseApp: FirebaseApp) = apply {
-            this.initializerFirebase = firebaseApp
-        }
-
-
-        fun build(): MyGoogleSignIn {
-            if (clientId == null) {
-                throw IllegalArgumentException("clientId cannot be null")
-            }
-
-            return MyGoogleSignIn(
-                onAuthCallback = onAuthCallback!!,
-                clientId = clientId!!,
-                initializerFirebase = initializerFirebase
-            )
-        }
+    fun getClientID(context: Context, clientToken: String): Intent {
+        val gso =
+            GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(clientToken)
+                .requestEmail()
+                .requestProfile().build()
+        return GoogleSignIn.getClient(context, gso).signInIntent
     }
 
 
-    private val gso =
-        GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken(clientId)
-            .requestEmail().requestProfile().build()
-
-
-    fun getClientID(context: Context): Intent = GoogleSignIn.getClient(context, gso).signInIntent
-
-
-    fun getIdTokenFromIntent(intent: Intent?): String? {
+    fun getIdTokenFromIntent(intent: Intent?, onError: (String) -> Unit): String? {
         try {
 
             return GoogleSignIn.getSignedInAccountFromIntent(intent)
                 .getResult(ApiException::class.java).idToken
         } catch (e: ApiException) {
-            onAuthCallback.onError(e.message ?: "Unknown error")
+            onError(e.message ?: "Unknown error")
             return null
         }
 
     }
 
+    val auth =
+        if (initializer != null) FirebaseAuth.getInstance(initializer) else FirebaseAuth.getInstance()
 
-    fun firebaseAuthWithGoogle(idToken: String) {
-        val auth =
-            if (initializerFirebase == null) FirebaseAuth.getInstance() else FirebaseAuth.getInstance(
-                initializerFirebase
-            )
+    override fun signOut() = auth.signOut()
+    override fun currentUser() = auth.currentUser?.createGoogleAuthUser()
+
+    override fun isSignedIn(): Boolean = auth.currentUser != null
+
+
+    fun firebaseAuthWithGoogle(
+        idToken: String,
+        onError: (String) -> Unit,
+        onSuccess: (GoogleAuthUserModel?) -> Unit,
+    ) {
+
         val credential = GoogleAuthProvider.getCredential(idToken, null)
 
         auth.signInWithCredential(credential).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                onAuthCallback.onSuccess(task.result?.user.createGoogleAuthUser())
+                onSuccess(task.result?.user.createGoogleAuthUser())
             } else {
                 // If sign in fails, display a message to the user.
-                onAuthCallback.onError(task.exception?.message ?: "Unknown error")
+                onError(task.exception?.message ?: "Unknown error")
             }
         }
     }

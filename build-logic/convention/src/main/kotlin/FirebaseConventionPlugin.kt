@@ -12,21 +12,22 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 class FirebaseConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target){
+
+            val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
             pluginManager.apply {
                 apply("com.android.library")
                 apply("org.jetbrains.kotlin.android")
             }
 
-            val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
             dependencies {
                 add("implementation", platform(libs.findLibrary("firebase.bom").get()))
                 add("implementation", libs.findLibrary("firebase.auth.ktx").get())
+                add("implementation", libs.findLibrary("playService.auth").get())
             }
 
             extensions.configure<LibraryExtension> {
                 configureKotlinAndroid(this)
-                configureAndroidCompose(this)
                 defaultConfig.targetSdk = 34
             }
 
