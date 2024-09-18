@@ -1,4 +1,5 @@
 import com.rooydad.app.Configuration
+import org.gradle.kotlin.dsl.android
 
 
 plugins {
@@ -6,13 +7,10 @@ plugins {
     id("app.rooydad.app.android.application.compose")
     id("app.rooydad.app.android.hilt")
     id("app.rooydad.app.spotless")
-//    alias(libs.plugins.kotlin.parcelize)
-//    alias(libs.plugins.android.application)
-//    alias(libs.plugins.jetbrains.kotlin.android)
-//    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+    alias(libs.plugins.google.gms.google.services)
 }
 
-repositories{
+repositories {
 
 }
 
@@ -91,7 +89,6 @@ android {
     }
 
 
-
 }
 
 dependencies {
@@ -107,6 +104,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
 //    implementation(libs.generativeai)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -122,4 +120,6 @@ dependencies {
     ksp(libs.hilt.compiler)
     androidTestImplementation(libs.hilt.testing)
     kspAndroidTest(libs.hilt.compiler)
+
+
 }

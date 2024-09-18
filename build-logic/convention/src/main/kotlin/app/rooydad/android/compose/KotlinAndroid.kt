@@ -12,6 +12,9 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 internal fun Project.configureKotlinAndroid(
   commonExtension: CommonExtension<*, *, *, *, *, *>,
 ) {
+
+
+
   commonExtension.apply {
     compileSdk = 34
 
@@ -27,6 +30,8 @@ internal fun Project.configureKotlinAndroid(
     lint {
       abortOnError = false
     }
+
+
   }
 }
 
@@ -37,8 +42,9 @@ internal fun Project.configureKotlinAndroid(
     compilerOptions {
       // Treat all Kotlin warnings as errors (disabled by default)
       allWarningsAsErrors.set(
-        properties["warningsAsErrors"] as? Boolean ?: false
+          properties["warningsAsErrors"] as? Boolean == true
       )
+
 
       freeCompilerArgs.set(
         freeCompilerArgs.getOrElse(emptyList()) + listOf(

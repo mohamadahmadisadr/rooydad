@@ -16,6 +16,8 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
         apply("org.jetbrains.kotlin.android")
       }
 
+
+
       dependencies {
         add("implementation", project(":core:data"))
         add("compileOnly", project(":core:designsystem"))
