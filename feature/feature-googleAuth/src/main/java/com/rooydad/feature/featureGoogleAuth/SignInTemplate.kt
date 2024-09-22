@@ -14,9 +14,9 @@ interface SignInTemplate {
 }
 
 data class AuthModel(
-    val username: String,
+    var username: String,
     val usernameError: String? = null,
-    val password: String,
+    var password: String,
     val passwordError: String? = null,
 
-)
+    )

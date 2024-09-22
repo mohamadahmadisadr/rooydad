@@ -1,8 +1,6 @@
 package com.rooydad.feature.login
 
 import android.content.Context
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rooydad.feature.featureGoogleAuth.AuthModel
@@ -10,6 +8,10 @@ import com.rooydad.feature.featureGoogleAuth.GoogleAuthUserModel
 import com.rooydad.feature.featureGoogleAuth.MyGoogleSignIn
 import com.rooydad.feature.featureGoogleAuth.di.ResultCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,14 +22,23 @@ class LoginViewModel @Inject constructor(
 ) : ViewModel(), ResultCallback<GoogleAuthUserModel> {
 
 
-    private val _authModel = mutableStateOf(AuthModel(username = "", password = ""))
-    val authModel: State<AuthModel> = _authModel
-    private val _uiMode = mutableStateOf<UiMode>(UiMode.Login)
-    val uiModeState: State<UiMode> = _uiMode
+    private val _authModel = MutableStateFlow(AuthModel(username = "", password = ""))
+    private val _uiMode = MutableStateFlow<UiMode>(UiMode.Login)
+
+    private val _uiState = MutableStateFlow<UiState>(UiState.Idle)
 
 
-    private val _uiState = mutableStateOf<UiState>(UiState.Idle)
-    val uiState: State<UiState> = _uiState
+    val state = combine(
+        _authModel,
+        _uiMode,
+        _uiState,
+        ::CombinedState,
+    ).stateIn(
+        scope = viewModelScope, initialValue = CombinedState(
+            _authModel.value, _uiMode.value, _uiState.value,
+        ), started = SharingStarted.WhileSubscribed(5_000)
+    )
+
 
     fun setUserName(): (String) -> Unit = {
         _authModel.value = _authModel.value.copy(username = it)
@@ -56,10 +67,10 @@ class LoginViewModel @Inject constructor(
 
     fun onSignInOrSignUpClick(): () -> Unit = {
         _uiState.value = UiState.Loading
-        if (uiModeState.value == UiMode.Login) {
-            googleSignIn.signIn(authModel.value, this)
+        if (state.value.uiMode == UiMode.Login) {
+            googleSignIn.signIn(state.value.authModel, this)
         } else {
-            googleSignIn.createUser(authModel.value, this)
+            googleSignIn.createUser(state.value.authModel, this)
         }
     }
 
@@ -75,10 +86,15 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onResetPasswordClick(): () -> Unit = {
-        googleSignIn.forgetPassword(authModel.value.username, this)
+        googleSignIn.forgetPassword(state.value.authModel.username, this)
     }
 
 }
+
+data class CombinedState(
+    val authModel: AuthModel, val uiMode: UiMode, val uiState: UiState
+)
+
 
 sealed class UiMode {
     object Login : UiMode()

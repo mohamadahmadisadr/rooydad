@@ -19,6 +19,10 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,10 +30,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.delay
 
 
 @Composable
@@ -39,6 +47,8 @@ fun RooydadLogin(
 ) {
 
     val context = LocalContext.current
+
+    val uiState by viewModel.state.collectAsStateWithLifecycle()
 
 
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
@@ -50,7 +60,7 @@ fun RooydadLogin(
             horizontalAlignment = Alignment.Start,
         ) {
             Text(
-                text = "Hey \uD83E\uDD1D\n ${if (viewModel.uiModeState.value == UiMode.Login) "Login" else "Register"} Now!",
+                text = "Hey \uD83E\uDD1D\n ${if (uiState == UiMode.Login) "Login" else "Register"} Now!",
                 style = TextStyle(fontWeight = FontWeight.ExtraBold, fontSize = 30.sp)
             )
 
@@ -58,8 +68,8 @@ fun RooydadLogin(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 TextButton(onClick = {
-                    viewModel::changeUiMode
-                }, enabled = viewModel.uiModeState.value == UiMode.Register) {
+                    viewModel.changeUiMode()
+                }, enabled = uiState.uiMode == UiMode.Register) {
 
                     Text(
                         text = "I Am An Old User",
@@ -68,10 +78,8 @@ fun RooydadLogin(
                 }
                 Text(text = " / ")
                 TextButton(
-                    onClick = {
-                        viewModel::changeUiMode
-                    },
-                    enabled = viewModel.uiModeState.value == UiMode.Login,
+                    onClick = { viewModel.changeUiMode() },
+                    enabled = uiState.uiMode == UiMode.Login,
                 ) {
                     Text(
                         text = "Create New",
@@ -83,12 +91,16 @@ fun RooydadLogin(
 
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = viewModel.authModel.value.username,
-                onValueChange = { viewModel::setUserName },
+                value = uiState.authModel.username,
+                onValueChange = viewModel.setUserName(),
                 placeholder = { Text(text = "UserName") },
                 shape = RoundedCornerShape(size = 15.dp),
-                isError = viewModel.authModel.value.usernameError != null,
-                supportingText = { Text(text = viewModel.authModel.value.usernameError ?: "") },
+                isError = uiState.authModel.usernameError != null,
+                supportingText = {
+                    Text(
+                        text = uiState.authModel.usernameError ?: ""
+                    )
+                },
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = Color.Transparent,
                     focusedBorderColor = Color.Transparent,
@@ -98,14 +110,37 @@ fun RooydadLogin(
             )
 
             Spacer(modifier = Modifier.height(2.dp))
+
+            var passwordVisibility = remember { mutableStateOf(false) }
+
+            LaunchedEffect(key1 = passwordVisibility.value) {
+                if (passwordVisibility.value) {
+                    delay(3_000)
+                    passwordVisibility.value = !passwordVisibility.value
+                }
+            }
+
+
             OutlinedTextField(
+                visualTransformation = if (passwordVisibility.value) VisualTransformation.None else PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
-                value = viewModel.authModel.value.password,
+                value = uiState.authModel.password,
                 onValueChange = viewModel.setPassword(),
                 placeholder = { Text(text = "Password") },
                 shape = RoundedCornerShape(size = 15.dp),
-                isError = viewModel.authModel.value.passwordError != null,
-                supportingText = { Text(text = viewModel.authModel.value.passwordError ?: "") },
+                isError = uiState.authModel.passwordError != null,
+                trailingIcon = {
+                    TextButton(onClick = {
+                        passwordVisibility.value = !passwordVisibility.value
+                    }) {
+                        Text(text = if (passwordVisibility.value) "Hide" else "Show")
+                    }
+                },
+                supportingText = {
+                    Text(
+                        text = uiState.authModel.passwordError ?: ""
+                    )
+                },
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = Color.Transparent,
                     focusedBorderColor = Color.Transparent,
@@ -127,10 +162,9 @@ fun RooydadLogin(
             Button(
                 onClick = viewModel.onSignInOrSignUpClick(),
                 modifier = Modifier.fillMaxWidth(),
-                enabled = viewModel.uiState.value == UiState.Idle
+                enabled = uiState.uiState == UiState.Idle
             ) {
-                if (viewModel.uiState.value == UiState.Idle)
-                    Text(text = if (viewModel.uiModeState.value == UiMode.Login) "Login" else "Register")
+                if (uiState.uiState == UiState.Idle) Text(text = if (uiState.uiMode == UiMode.Login) "Login" else "Register")
                 else CircularProgressIndicator()
             }
             Spacer(modifier = Modifier.height(5.dp))
@@ -141,10 +175,8 @@ fun RooydadLogin(
 
             OutlinedButton(
                 onClick = viewModel.onSignInWithGoogleClick(
-                    context,
-                    stringResource(R.string.client_id)
-                ), modifier = Modifier.fillMaxWidth(),
-                enabled = viewModel.uiState.value == UiState.Idle
+                    context, stringResource(R.string.client_id)
+                ), modifier = Modifier.fillMaxWidth(), enabled = uiState.uiState == UiState.Idle
             ) {
                 Text(text = "Google Sign In")
             }

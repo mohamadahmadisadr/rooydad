@@ -13,4 +13,5 @@ android {
 dependencies{
     implementation(project(":feature:feature-googleAuth"))
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.compose)
 }
