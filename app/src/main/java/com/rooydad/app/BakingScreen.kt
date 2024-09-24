@@ -25,6 +25,8 @@ import com.rooydad.feature.login.RooydadLogin
 fun BakingScreen(
 ) {
 
-    RooydadLogin()
+    RooydadLogin(
+        onShowSnackbar = { _, _ -> false }
+    )
 }
 

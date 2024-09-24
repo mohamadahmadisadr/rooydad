@@ -41,9 +41,9 @@ import kotlinx.coroutines.delay
 
 
 @Composable
-@Preview(showBackground = true)
-fun RooydadLogin(
-    viewModel: LoginViewModel = hiltViewModel()
+internal fun RooydadLogin(
+    viewModel: LoginViewModel = hiltViewModel(),
+    onShowSnackbar: suspend (String, String?) -> Boolean,
 ) {
 
     val context = LocalContext.current
@@ -87,7 +87,7 @@ fun RooydadLogin(
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
@@ -95,7 +95,9 @@ fun RooydadLogin(
                 onValueChange = viewModel.setUserName(),
                 placeholder = { Text(text = "UserName") },
                 shape = RoundedCornerShape(size = 15.dp),
-                isError = uiState.authModel.usernameError != null,
+                isError = uiState.authModel.usernameError != null && !viewModel.isUsernameValidOrNotEmpty(
+                    uiState.authModel.username,
+                ),
                 supportingText = {
                     Text(
                         text = uiState.authModel.usernameError ?: ""
@@ -106,10 +108,10 @@ fun RooydadLogin(
                     focusedBorderColor = Color.Transparent,
                     focusedContainerColor = Color.LightGray.copy(alpha = 0.5f),
                     unfocusedContainerColor = Color.LightGray.copy(alpha = 0.5f),
-                )
+                ),
             )
 
-            Spacer(modifier = Modifier.height(2.dp))
+//            Spacer(modifier = Modifier.height(2.dp))
 
             var passwordVisibility = remember { mutableStateOf(false) }
 
@@ -150,7 +152,7 @@ fun RooydadLogin(
             )
 
 
-            TextButton(onClick = viewModel.onResetPasswordClick()) {
+            TextButton(onClick = { viewModel.onResetPasswordClick() }) {
 
                 Text(
                     text = "Forgot Password?",
@@ -160,7 +162,7 @@ fun RooydadLogin(
 
             Spacer(modifier = Modifier.height(2.dp))
             Button(
-                onClick = viewModel.onSignInOrSignUpClick(),
+                onClick = { viewModel.onSignInOrSignUpClick() },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = uiState.uiState == UiState.Idle
             ) {
@@ -172,11 +174,14 @@ fun RooydadLogin(
             Spacer(modifier = Modifier.height(5.dp))
 
 
+            val key = stringResource(R.string.client_id)
 
             OutlinedButton(
-                onClick = viewModel.onSignInWithGoogleClick(
-                    context, stringResource(R.string.client_id)
-                ), modifier = Modifier.fillMaxWidth(), enabled = uiState.uiState == UiState.Idle
+                onClick = {
+                    viewModel.onSignInWithGoogleClick(
+                        context, key
+                    )
+                }, modifier = Modifier.fillMaxWidth(), enabled = uiState.uiState == UiState.Idle
             ) {
                 Text(text = "Google Sign In")
             }
@@ -185,4 +190,7 @@ fun RooydadLogin(
 
     }
 }
+
+
+
 

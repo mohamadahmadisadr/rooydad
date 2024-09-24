@@ -41,10 +41,16 @@ class LoginViewModel @Inject constructor(
 
 
     fun setUserName(): (String) -> Unit = {
+        if (_authModel.value.usernameError != null) {
+            _authModel.value = _authModel.value.copy(usernameError = null)
+        }
         _authModel.value = _authModel.value.copy(username = it)
     }
 
     fun setPassword(): (String) -> Unit = {
+        if (_authModel.value.passwordError != null) {
+            _authModel.value = _authModel.value.copy(passwordError = null)
+        }
         _authModel.value = _authModel.value.copy(password = it)
     }
 
@@ -53,7 +59,17 @@ class LoginViewModel @Inject constructor(
     }
 
 
-    fun onSignInWithGoogleClick(context: Context, clientId: String): () -> Unit = {
+    fun setUserNameError(error: String) {
+        _authModel.value = _authModel.value.copy(usernameError = error)
+
+    }
+
+    fun setPasswordError(error: String) {
+        _authModel.value = _authModel.value.copy(passwordError = error)
+    }
+
+
+    fun onSignInWithGoogleClick(context: Context, clientId: String) {
         _uiState.value = UiState.Loading
         viewModelScope.launch {
             googleSignIn.signInWithGoogle(
@@ -65,7 +81,16 @@ class LoginViewModel @Inject constructor(
     }
 
 
-    fun onSignInOrSignUpClick(): () -> Unit = {
+    fun onSignInOrSignUpClick() {
+        if (!isUsernameValidOrNotEmpty(state.value.authModel.username)) {
+            setUserNameError("Invalid Username")
+            return
+        }
+
+        if (state.value.authModel.password.isEmpty()) {
+            setPasswordError("Invalid Password")
+            return
+        }
         _uiState.value = UiState.Loading
         if (state.value.uiMode == UiMode.Login) {
             googleSignIn.signIn(state.value.authModel, this)
@@ -85,9 +110,17 @@ class LoginViewModel @Inject constructor(
         println("MyGoogleSignInError $error")
     }
 
-    fun onResetPasswordClick(): () -> Unit = {
+    fun onResetPasswordClick() {
+        if (!isUsernameValidOrNotEmpty(state.value.authModel.username)) {
+            setUserNameError("Invalid Username")
+            return
+        }
         googleSignIn.forgetPassword(state.value.authModel.username, this)
     }
+
+
+    fun isUsernameValidOrNotEmpty(username: String): Boolean =
+        username.isNotEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(username).matches()
 
 }
 

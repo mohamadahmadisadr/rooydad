@@ -2,8 +2,7 @@ import org.gradle.kotlin.dsl.android
 
 plugins {
     id("app.rooydad.app.android.feature")
-    id("app.rooydad.app.android.hilt")
-
+    alias(libs.plugins.jetbrains.kotlin.android)
 }
 
 android {
