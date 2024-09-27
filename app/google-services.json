@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "710570128309",
+    "project_id": "rooydad-174ba",
+    "storage_bucket": "rooydad-174ba.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:710570128309:android:27973e855a3f6c757a5ffc",
+        "android_client_info": {
+          "package_name": "com.rooydad.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "710570128309-fhlou37dh5mg75fd21a2sfsj192lg4f6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rooydad.app",
+            "certificate_hash": "90356f1514ead34043cf6596a30138723d0aca95"
+          }
+        },
+        {
+          "client_id": "710570128309-hdejgpkfivnpsqbtjai9ggl573l1mfdh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFVf_-NS5PWRJ-ASb_9uoKcTniEjNliFk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "710570128309-hdejgpkfivnpsqbtjai9ggl573l1mfdh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

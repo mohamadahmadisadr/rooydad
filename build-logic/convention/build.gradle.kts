@@ -47,5 +47,10 @@ gradlePlugin {
             id = "app.rooydad.app.spotless"
             implementationClass = "SpotlessConventionPlugin"
         }
+
+        register("firebase") {
+            id = "app.rooydad.app.firebase"
+            implementationClass = "FirebaseConventionPlugin"
+        }
     }
 }
