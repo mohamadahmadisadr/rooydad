@@ -37,6 +37,7 @@
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/feature-googleAuth" />
             <option value="$PROJECT_DIR$/feature/feature-login" />
+            <option value="$PROJECT_DIR$/feature/feature-profile" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />
