@@ -1,5 +1,6 @@
 plugins {
     id("app.rooydad.app.android.feature")
+    alias(libs.plugins.jetbrains.kotlin.android)
 }
 
 android {
